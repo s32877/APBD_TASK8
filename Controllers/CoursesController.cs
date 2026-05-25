@@ -24,7 +24,6 @@ public class CoursesController(UniversityTasksDbContext db) : ControllerBase
                 c.Code,
                 c.Name,
                 c.Credits,
-                c.IsActive,
                 c.Assignments.Count))
             .ToListAsync();
 
