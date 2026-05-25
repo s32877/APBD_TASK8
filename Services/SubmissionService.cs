@@ -10,7 +10,6 @@ public class SubmissionService(UniversityTasksDbContext db)
     public async Task<(SubmissionDto? dto, int statusCode, string? error)> CreateAsync(
         CreateSubmissionDto request)
     {
-        // Validate RepositoryUrl
         if (string.IsNullOrWhiteSpace(request.RepositoryUrl) ||
             !request.RepositoryUrl.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
             return (null, 400, "RepositoryUrl must be non-empty and start with https://");
@@ -25,7 +24,6 @@ public class SubmissionService(UniversityTasksDbContext db)
             return (null, 400, "Student is not active.");
 
         var assignment = await db.Assignments.AsNoTracking()
-            .Include(a => a.Course)
             .FirstOrDefaultAsync(a => a.AssignmentId == request.AssignmentId);
 
         if (assignment is null)
@@ -34,7 +32,6 @@ public class SubmissionService(UniversityTasksDbContext db)
         if (!assignment.IsPublished)
             return (null, 400, "Assignment is not published.");
 
-        // Check enrollment in the assignment's course with status Active or Completed
         var enrolled = await db.Enrollments.AsNoTracking()
             .AnyAsync(e => e.StudentId == request.StudentId
                         && e.CourseId == assignment.CourseId
@@ -43,7 +40,6 @@ public class SubmissionService(UniversityTasksDbContext db)
         if (!enrolled)
             return (null, 400, "Student is not enrolled (Active/Completed) in the course that owns this assignment.");
 
-        // Duplicate check
         var duplicate = await db.Submissions.AsNoTracking()
             .AnyAsync(s => s.AssignmentId == request.AssignmentId
                         && s.StudentId == request.StudentId);
@@ -117,7 +113,7 @@ public class SubmissionService(UniversityTasksDbContext db)
         return (204, null);
     }
 
-    public static SubmissionDto ToDto(Submission s) => new(
+    private static SubmissionDto ToDto(Submission s) => new(
         s.SubmissionId,
         new StudentBriefDto(s.Student.StudentId, s.Student.IndexNumber, s.Student.FullName),
         new AssignmentBriefDto(s.Assignment.AssignmentId, s.Assignment.Title, s.Assignment.CourseId),

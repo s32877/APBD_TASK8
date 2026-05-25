@@ -5,7 +5,6 @@ public record CourseDto(
     string Code,
     string Name,
     int Credits,
-    bool IsActive,
     int AssignmentCount);
 
 public record AssignmentDto(
