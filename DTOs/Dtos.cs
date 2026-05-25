@@ -1,7 +1,5 @@
 namespace APBD_TASK8.DTOs;
 
-// ── Response DTOs ──────────────────────────────────────────────
-
 public record CourseDto(
     int CourseId,
     string Code,
@@ -54,8 +52,6 @@ public record SubmissionDto(
     string Status,
     int? Score,
     string? Feedback);
-
-// ── Request DTOs ───────────────────────────────────────────────
 
 public record CreateSubmissionDto(
     int AssignmentId,
